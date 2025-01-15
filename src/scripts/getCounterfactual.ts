@@ -1,19 +1,21 @@
-import { smartAccountClient } from "../helpers/createSmartAccountClient";
+import { modularAccountClient } from "../client";
 import fs from "fs";
 import path from "path";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 const FILENAME = "accountInfo.json";
-const __dirname = import.meta.url.split("/scripts")[0].split("file://")[1];
+const __dirname = import.meta.url
+  .split("/src/ts/scripts")[0]
+  .split("file://")[1];
 
 async function main() {
-  const signer = smartAccountClient;
+  const signer = modularAccountClient;
 
   const counterfactualAddress = await signer.getAddress();
 
   const filePath = path.join(__dirname, FILENAME);
-  let data = {};
+  let data: { [key: string]: any } = {};
 
   data["counterfactualAddress"] = counterfactualAddress;
 

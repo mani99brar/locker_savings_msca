@@ -34,9 +34,9 @@ export const SavingsModuleAbi = [
   {
     type: "function",
     name: "onInstall",
-    inputs: [{ name: "", type: "bytes", internalType: "bytes" }],
+    inputs: [{ name: "data", type: "bytes", internalType: "bytes" }],
     outputs: [],
-    stateMutability: "pure",
+    stateMutability: "nonpayable",
   },
   {
     type: "function",

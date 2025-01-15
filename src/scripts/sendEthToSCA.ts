@@ -5,7 +5,7 @@ import { sepolia } from "viem/chains";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { counterfactualAddress } from "../accountInfo.json";
+import { counterfactualAddress } from "../../accountInfo.json";
 
 const PRIV_KEY = process.env.PRIV_KEY!;
 const ALCHEMY_API_URL = process.env.ALCHEMY_API_URL!;
