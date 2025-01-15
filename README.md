@@ -1,4 +1,4 @@
-# Creating a Smart Contract Account and sending ETH
+# Extend smart wallet with plugin:
 
 Install dependencies:
 ```
