@@ -1,229 +1,4 @@
-import {
-  getContract,
-  encodeAbiParameters,
-  encodeFunctionData,
-  type Address,
-  type GetContractReturnType,
-  type Transport,
-  type PublicClient,
-  type Client,
-  type EncodeFunctionDataParameters,
-  type Chain,
-  type Hex,
-} from "viem";
-import {
-  ChainNotFoundError,
-  AccountNotFoundError,
-  isSmartAccountClient,
-  IncompatibleClientError,
-  type SmartContractAccount,
-  type GetAccountParameter,
-  type SendUserOperationResult,
-  type GetEntryPointFromAccount,
-  type UserOperationOverridesParameter,
-  type UserOperationContext,
-  type GetContextParameter,
-} from "@aa-sdk/core";
-import {
-  installPlugin as installPlugin_,
-  type Plugin,
-  type FunctionReference,
-} from "@account-kit/smart-contracts";
-
-type ExecutionActions<
-  TAccount extends SmartContractAccount | undefined =
-    | SmartContractAccount
-    | undefined,
-  TContext extends UserOperationContext | undefined =
-    | UserOperationContext
-    | undefined,
-  TEntryPointVersion extends
-    GetEntryPointFromAccount<TAccount> = GetEntryPointFromAccount<TAccount>,
-> = {
-  createAutomation: (
-    args: Pick<
-      EncodeFunctionDataParameters<
-        typeof SavingsPluginExecutionFunctionAbi,
-        "createAutomation"
-      >,
-      "args"
-    > &
-      UserOperationOverridesParameter<TEntryPointVersion> &
-      GetAccountParameter<TAccount> &
-      GetContextParameter<TContext>,
-  ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
-};
-
-type InstallArgs = [];
-
-export type InstallSavingsPluginParams = {
-  args: Parameters<typeof encodeAbiParameters<InstallArgs>>[1];
-  pluginAddress?: Address;
-  dependencyOverrides?: FunctionReference[];
-};
-
-type ManagementActions<
-  TAccount extends SmartContractAccount | undefined =
-    | SmartContractAccount
-    | undefined,
-  TContext extends UserOperationContext | undefined =
-    | Record<string, any>
-    | undefined,
-  TEntryPointVersion extends
-    GetEntryPointFromAccount<TAccount> = GetEntryPointFromAccount<TAccount>,
-> = {
-  installSavingsPlugin: (
-    args: UserOperationOverridesParameter<TEntryPointVersion> &
-      InstallSavingsPluginParams &
-      GetAccountParameter<TAccount> &
-      GetContextParameter<TContext>,
-  ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
-};
-
-type ReadAndEncodeActions = {
-  encodeCreateAutomation: (
-    args: Pick<
-      EncodeFunctionDataParameters<
-        typeof SavingsPluginExecutionFunctionAbi,
-        "createAutomation"
-      >,
-      "args"
-    >,
-  ) => Hex;
-};
-
-export type SavingsPluginActions<
-  TAccount extends SmartContractAccount | undefined =
-    | SmartContractAccount
-    | undefined,
-  TContext extends UserOperationContext | undefined =
-    | UserOperationContext
-    | undefined,
-> = ExecutionActions<TAccount, TContext> &
-  ManagementActions<TAccount, TContext> &
-  ReadAndEncodeActions;
-
-const addresses = {
-  11155111: "0x27415FF5A8d0E694Ad5c2daC808c4e0321B5c458" as Address,
-} as Record<number, Address>;
-
-export const SavingsPlugin: Plugin<typeof SavingsPluginAbi> = {
-  meta: {
-    name: "Locker Savings Plugin",
-    version: "0.0.1",
-    addresses,
-  },
-  getContract: <C extends Client>(
-    client: C,
-    address?: Address,
-  ): GetContractReturnType<typeof SavingsPluginAbi, PublicClient, Address> => {
-    if (!client.chain) throw new ChainNotFoundError();
-
-    return getContract({
-      address: address || addresses[client.chain.id],
-      abi: SavingsPluginAbi,
-      client: client,
-    }) as GetContractReturnType<typeof SavingsPluginAbi, PublicClient, Address>;
-  },
-};
-
-export const savingsPluginActions: <
-  TTransport extends Transport = Transport,
-  TChain extends Chain | undefined = Chain | undefined,
-  TAccount extends SmartContractAccount | undefined =
-    | SmartContractAccount
-    | undefined,
-  TContext extends UserOperationContext | undefined =
-    | UserOperationContext
-    | undefined,
->(
-  client: Client<TTransport, TChain, TAccount>,
-) => SavingsPluginActions<TAccount, TContext> = (client) => ({
-  createAutomation({ args, overrides, context, account = client.account }) {
-    if (!account) {
-      throw new AccountNotFoundError();
-    }
-    if (!isSmartAccountClient(client)) {
-      throw new IncompatibleClientError(
-        "SmartAccountClient",
-        "createAutomation",
-        client,
-      );
-    }
-
-    const uo = encodeFunctionData({
-      abi: SavingsPluginExecutionFunctionAbi,
-      functionName: "createAutomation",
-      args,
-    });
-
-    return client.sendUserOperation({ uo, overrides, account, context });
-  },
-  installSavingsPlugin({
-    account = client.account,
-    overrides,
-    context,
-    ...params
-  }) {
-    if (!account) {
-      throw new AccountNotFoundError();
-    }
-
-    if (!isSmartAccountClient(client)) {
-      throw new IncompatibleClientError(
-        "SmartAccountClient",
-        "installSavingsPlugin",
-        client,
-      );
-    }
-
-    const chain = client.chain;
-    if (!chain) {
-      throw new ChainNotFoundError();
-    }
-
-    const dependencies = params.dependencyOverrides ?? [];
-    const pluginAddress =
-      params.pluginAddress ??
-      (SavingsPlugin.meta.addresses[chain.id] as Address | undefined);
-
-    if (!pluginAddress) {
-      throw new Error("missing SavingsPlugin address for chain " + chain.name);
-    }
-
-    return installPlugin_(client, {
-      pluginAddress,
-      pluginInitData: encodeAbiParameters([], params.args),
-      dependencies,
-      overrides,
-      account,
-      context,
-    });
-  },
-  encodeCreateAutomation({ args }) {
-    return encodeFunctionData({
-      abi: SavingsPluginExecutionFunctionAbi,
-      functionName: "createAutomation",
-      args,
-    });
-  },
-});
-
-export const SavingsPluginExecutionFunctionAbi = [
-  {
-    type: "function",
-    name: "createAutomation",
-    inputs: [
-      { name: "automationIndex", type: "uint256", internalType: "uint256" },
-      { name: "savingsAccount", type: "address", internalType: "address" },
-      { name: "roundUpTo", type: "uint256", internalType: "uint256" },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-] as const;
-
-export const SavingsPluginAbi = [
+export const SimpleCounterAbi = [
   {
     type: "function",
     name: "AUTHOR",
@@ -247,21 +22,24 @@ export const SavingsPluginAbi = [
   },
   {
     type: "function",
-    name: "createAutomation",
-    inputs: [
-      { name: "automationIndex", type: "uint256", internalType: "uint256" },
-      { name: "savingsAccount", type: "address", internalType: "address" },
-      { name: "roundUpTo", type: "uint256", internalType: "uint256" },
-    ],
+    name: "counts",
+    inputs: [{ name: "", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "increment",
+    inputs: [],
     outputs: [],
     stateMutability: "nonpayable",
   },
   {
     type: "function",
     name: "onInstall",
-    inputs: [{ name: "data", type: "bytes", internalType: "bytes" }],
+    inputs: [{ name: "", type: "bytes", internalType: "bytes" }],
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "pure",
   },
   {
     type: "function",
@@ -539,7 +317,7 @@ export const SavingsPluginAbi = [
     name: "preExecutionHook",
     inputs: [
       { name: "functionId", type: "uint8", internalType: "uint8" },
-      { name: "", type: "address", internalType: "address" },
+      { name: "sender", type: "address", internalType: "address" },
       { name: "value", type: "uint256", internalType: "uint256" },
       { name: "data", type: "bytes", internalType: "bytes" },
     ],
@@ -609,20 +387,6 @@ export const SavingsPluginAbi = [
     ],
     outputs: [],
     stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "savingsAutomations",
-    inputs: [
-      { name: "", type: "address", internalType: "address" },
-      { name: "", type: "uint256", internalType: "uint256" },
-    ],
-    outputs: [
-      { name: "savingsAccount", type: "address", internalType: "address" },
-      { name: "roundUpTo", type: "uint256", internalType: "uint256" },
-      { name: "enabled", type: "bool", internalType: "bool" },
-    ],
-    stateMutability: "view",
   },
   {
     type: "function",

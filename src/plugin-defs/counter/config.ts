@@ -6,7 +6,7 @@ export const CounterPluginGen: PluginConfig = {
   name: "CounterPlugin",
   abi: CounterAbi,
   addresses: {
-    [sepolia.id]: "0xA6c095f683106CbBC26e8d9A10Bd18840BfF1384",
+    [sepolia.id]: "0x3e71215c32095fd32c458E683D557709c3cef2f9",
   },
   installConfig: {
     initAbiParams: [],

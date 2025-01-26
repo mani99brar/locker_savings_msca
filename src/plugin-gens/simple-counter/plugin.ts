@@ -43,7 +43,7 @@ type ExecutionActions<
   increment: (
     args: Pick<
       EncodeFunctionDataParameters<
-        typeof CounterPluginExecutionFunctionAbi,
+        typeof SimpleCounterPluginExecutionFunctionAbi,
         "increment"
       >,
       "args"
@@ -56,7 +56,7 @@ type ExecutionActions<
 
 type InstallArgs = [];
 
-export type InstallCounterPluginParams = {
+export type InstallSimpleCounterPluginParams = {
   args: Parameters<typeof encodeAbiParameters<InstallArgs>>[1];
   pluginAddress?: Address;
   dependencyOverrides?: FunctionReference[];
@@ -72,9 +72,9 @@ type ManagementActions<
   TEntryPointVersion extends
     GetEntryPointFromAccount<TAccount> = GetEntryPointFromAccount<TAccount>,
 > = {
-  installCounterPlugin: (
+  installSimpleCounterPlugin: (
     args: UserOperationOverridesParameter<TEntryPointVersion> &
-      InstallCounterPluginParams &
+      InstallSimpleCounterPluginParams &
       GetAccountParameter<TAccount> &
       GetContextParameter<TContext>,
   ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
@@ -84,7 +84,7 @@ type ReadAndEncodeActions = {
   encodeIncrement: (
     args: Pick<
       EncodeFunctionDataParameters<
-        typeof CounterPluginExecutionFunctionAbi,
+        typeof SimpleCounterPluginExecutionFunctionAbi,
         "increment"
       >,
       "args"
@@ -92,7 +92,7 @@ type ReadAndEncodeActions = {
   ) => Hex;
 };
 
-export type CounterPluginActions<
+export type SimpleCounterPluginActions<
   TAccount extends SmartContractAccount | undefined =
     | SmartContractAccount
     | undefined,
@@ -104,30 +104,38 @@ export type CounterPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  11155111: "0xA6c095f683106CbBC26e8d9A10Bd18840BfF1384" as Address,
+  11155111: "0x57C4defFE018D5Ffe65C23dbE31496C433ABce53" as Address,
 } as Record<number, Address>;
 
-export const CounterPlugin: Plugin<typeof CounterPluginAbi> = {
+export const SimpleCounterPlugin: Plugin<typeof SimpleCounterPluginAbi> = {
   meta: {
-    name: "Counter Plugin",
+    name: "Simple Counter Plugin",
     version: "1.0.0",
     addresses,
   },
   getContract: <C extends Client>(
     client: C,
     address?: Address,
-  ): GetContractReturnType<typeof CounterPluginAbi, PublicClient, Address> => {
+  ): GetContractReturnType<
+    typeof SimpleCounterPluginAbi,
+    PublicClient,
+    Address
+  > => {
     if (!client.chain) throw new ChainNotFoundError();
 
     return getContract({
       address: address || addresses[client.chain.id],
-      abi: CounterPluginAbi,
+      abi: SimpleCounterPluginAbi,
       client: client,
-    }) as GetContractReturnType<typeof CounterPluginAbi, PublicClient, Address>;
+    }) as GetContractReturnType<
+      typeof SimpleCounterPluginAbi,
+      PublicClient,
+      Address
+    >;
   },
 };
 
-export const counterPluginActions: <
+export const simpleCounterPluginActions: <
   TTransport extends Transport = Transport,
   TChain extends Chain | undefined = Chain | undefined,
   TAccount extends SmartContractAccount | undefined =
@@ -138,7 +146,7 @@ export const counterPluginActions: <
     | undefined,
 >(
   client: Client<TTransport, TChain, TAccount>,
-) => CounterPluginActions<TAccount, TContext> = (client) => ({
+) => SimpleCounterPluginActions<TAccount, TContext> = (client) => ({
   increment({ overrides, context, account = client.account }) {
     if (!account) {
       throw new AccountNotFoundError();
@@ -152,13 +160,13 @@ export const counterPluginActions: <
     }
 
     const uo = encodeFunctionData({
-      abi: CounterPluginExecutionFunctionAbi,
+      abi: SimpleCounterPluginExecutionFunctionAbi,
       functionName: "increment",
     });
 
     return client.sendUserOperation({ uo, overrides, account, context });
   },
-  installCounterPlugin({
+  installSimpleCounterPlugin({
     account = client.account,
     overrides,
     context,
@@ -171,7 +179,7 @@ export const counterPluginActions: <
     if (!isSmartAccountClient(client)) {
       throw new IncompatibleClientError(
         "SmartAccountClient",
-        "installCounterPlugin",
+        "installSimpleCounterPlugin",
         client,
       );
     }
@@ -184,10 +192,12 @@ export const counterPluginActions: <
     const dependencies = params.dependencyOverrides ?? [];
     const pluginAddress =
       params.pluginAddress ??
-      (CounterPlugin.meta.addresses[chain.id] as Address | undefined);
+      (SimpleCounterPlugin.meta.addresses[chain.id] as Address | undefined);
 
     if (!pluginAddress) {
-      throw new Error("missing CounterPlugin address for chain " + chain.name);
+      throw new Error(
+        "missing SimpleCounterPlugin address for chain " + chain.name,
+      );
     }
 
     return installPlugin_(client, {
@@ -201,13 +211,13 @@ export const counterPluginActions: <
   },
   encodeIncrement() {
     return encodeFunctionData({
-      abi: CounterPluginExecutionFunctionAbi,
+      abi: SimpleCounterPluginExecutionFunctionAbi,
       functionName: "increment",
     });
   },
 });
 
-export const CounterPluginExecutionFunctionAbi = [
+export const SimpleCounterPluginExecutionFunctionAbi = [
   {
     type: "function",
     name: "increment",
@@ -217,7 +227,7 @@ export const CounterPluginExecutionFunctionAbi = [
   },
 ] as const;
 
-export const CounterPluginAbi = [
+export const SimpleCounterPluginAbi = [
   {
     type: "function",
     name: "AUTHOR",
@@ -241,7 +251,7 @@ export const CounterPluginAbi = [
   },
   {
     type: "function",
-    name: "count",
+    name: "counts",
     inputs: [{ name: "", type: "address", internalType: "address" }],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",

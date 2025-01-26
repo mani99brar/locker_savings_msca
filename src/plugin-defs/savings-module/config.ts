@@ -6,7 +6,7 @@ export const SavingsPluginGenConfig: PluginConfig = {
   name: "SavingsPlugin",
   abi: SavingsModuleAbi,
   addresses: {
-    [sepolia.id]: "0x27415FF5A8d0E694Ad5c2daC808c4e0321B5c458",
+    [sepolia.id]: "0x2EB77941b57d41a7686957E228a264560Ab20634",
   },
   installConfig: {
     initAbiParams: [],

@@ -5,9 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const FILENAME = "accountInfo.json";
-const __dirname = import.meta.url
-  .split("/src/ts/scripts")[0]
-  .split("file://")[1];
+const __dirname = import.meta.url.split("/src/scripts")[0].split("file://")[1];
 
 async function main() {
   const signer = modularAccountClient;
