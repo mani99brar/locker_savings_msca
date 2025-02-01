@@ -1,4 +1,13 @@
+# Ignore Foundry dependencies
+lib/
+out/
+cache/
+broadcast/
+
+# Node.js dependencies
 node_modules
+
+# Environment & Config Files
 .env
 package-lock.json
 accountInfo.json
