@@ -104,7 +104,7 @@ export type SavingsPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  11155111: "0x2EB77941b57d41a7686957E228a264560Ab20634" as Address,
+  11155111: "0x96BEFBae4867f7E8b0257d905E0E97f132b99DfC" as Address,
 } as Record<number, Address>;
 
 export const SavingsPlugin: Plugin<typeof SavingsPluginAbi> = {
@@ -259,9 +259,9 @@ export const SavingsPluginAbi = [
   {
     type: "function",
     name: "onInstall",
-    inputs: [{ name: "data", type: "bytes", internalType: "bytes" }],
+    inputs: [{ name: "", type: "bytes", internalType: "bytes" }],
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "pure",
   },
   {
     type: "function",
