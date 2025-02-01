@@ -10,11 +10,15 @@ const SAVINGS_PLUGIN_ADDRESS = "0x96BEFBae4867f7E8b0257d905E0E97f132b99DfC";
 export async function main() {
   const args = process.argv.slice(2);
   const extendedAccount = modularAccountClient.extend(savingsPluginActions);
-  if (args.includes("install")) {
-    await installSavingsPlugin(extendedAccount);
-  } else {
-    await createAutomation(extendedAccount);
-  }
+  console.log(await extendedAccount.getInstalledPlugins({}));
+  // const res = await extendedAccount.uninstallPlugin({
+  //   pluginAddress: SAVINGS_PLUGIN_ADDRESS,
+  // });
+  // if (args.includes("install")) {
+  //   await installSavingsPlugin(extendedAccount);
+  // } else {
+  //   await createAutomation(extendedAccount);
+  // }
   return;
 }
 
@@ -24,6 +28,15 @@ async function installSavingsPlugin(extendedAccount: any) {
     args: [],
   });
   console.log("Plugin installed:", res);
+  return;
+}
+
+async function uninstallPlugin(address: string, extendAccount: any) {
+  console.log("Uninstalling the plugin...");
+  const res = await extendAccount.uninstallPlugin({
+    args: [address],
+  });
+  console.log("Plugin uninstalled:", res);
   return;
 }
 
