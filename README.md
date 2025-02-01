@@ -1,28 +1,66 @@
-# Creating a Smart Contract Account and sending ETH
+## Foundry
 
-Install dependencies:
-```
-npm install
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+
+Foundry consists of:
+
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+
+## Documentation
+
+https://book.getfoundry.sh/
+
+## Usage
+
+### Build
+
+```shell
+$ forge build
 ```
 
-Generate plugins:
-```
-npx plugingen generate
+### Test
+
+```shell
+$ forge test
 ```
 
-Get Counterfactual Address and fund wallet:
-```
-npm run getCFaddress
-npm run sendETH
+### Format
+
+```shell
+$ forge fmt
 ```
 
-Extend wallet with savings plugin:
-```
-npm run execute install
+### Gas Snapshots
+
+```shell
+$ forge snapshot
 ```
 
+### Anvil
 
-Create automation in savings plugin:
+```shell
+$ anvil
 ```
-npm run execute
+
+### Deploy
+
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+
+### Cast
+
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
 ```
