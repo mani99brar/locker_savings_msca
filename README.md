@@ -16,7 +16,13 @@ npm run getCFaddress
 npm run sendETH
 ```
 
-Extend wallet with plugin:
+Extend wallet with savings plugin:
+```
+npm run execute install
+```
+
+
+Create automation in savings plugin:
 ```
 npm run execute
 ```
