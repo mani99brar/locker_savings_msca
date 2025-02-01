@@ -17,18 +17,18 @@
 
 pragma solidity ^0.8.22;
 
-import {UUPSUpgradeable} from "../../ext/UUPSUpgradeable.sol";
+import {UUPSUpgradeable} from "../ext/UUPSUpgradeable.sol";
 import {IERC1155Receiver} from "@openzeppelin/contracts/interfaces/IERC1155Receiver.sol";
 import {IERC777Recipient} from "@openzeppelin/contracts/interfaces/IERC777Recipient.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import {IAccount} from "../../src/interfaces/erc4337/IAccount.sol";
-import {IAggregator} from "../../src/interfaces/erc4337/IAggregator.sol";
-import {IPaymaster} from "../../src/interfaces/erc4337/IPaymaster.sol";
-import {IAccountLoupe} from "../../src/interfaces/IAccountLoupe.sol";
-import {IAccountView} from "../../src/interfaces/IAccountView.sol";
-import {IPluginManager} from "../../src/interfaces/IPluginManager.sol";
+import {IAccount} from "../interfaces/erc4337/IAccount.sol";
+import {IAggregator} from "../interfaces/erc4337/IAggregator.sol";
+import {IPaymaster} from "../interfaces/erc4337/IPaymaster.sol";
+import {IAccountLoupe} from "../interfaces/IAccountLoupe.sol";
+import {IAccountView} from "../interfaces/IAccountView.sol";
+import {IPluginManager} from "../interfaces/IPluginManager.sol";
 import {IAccountInitializable} from "../interfaces/IAccountInitializable.sol";
 import {IPlugin} from "../interfaces/IPlugin.sol";
 import {IPluginExecutor} from "../interfaces/IPluginExecutor.sol";

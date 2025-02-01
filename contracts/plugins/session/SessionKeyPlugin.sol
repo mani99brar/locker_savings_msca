@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.22;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
 import {CastLib} from "../../helpers/CastLib.sol";
 import {UserOperation} from "../../interfaces/erc4337/UserOperation.sol";
