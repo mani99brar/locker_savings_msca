@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "execute": "tsx -r dotenv/config src/index.ts",
-    "getCFaddress": "tsx -r dotenv/config src/scripts/getCounterfactual.ts",
-    "sendETH": "tsx -r dotenv/config src/scripts/sendEthToSCA.ts"
+    "getCFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactual.ts",
+    "sendETH": "tsx -r dotenv/config src/walletActions/sendEthToSCA.ts",
+    "deploy": "source .env && forge script scripts/CustomSessionKeyPlugin.s.sol:CustomSessionKeyPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast"
   },
   "author": "Alchemy",
   "license": "ISC",

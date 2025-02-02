@@ -21,12 +21,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",
-    "rootDir": ".",  // ✅ Expanded to project root
+    "rootDir": ".",  
     "paths": {
       "@/*": ["./src/*"],
-      "@abi/*": ["./abi/*"]  // ✅ Ensures ABI files are correctly mapped
+      "@abi/*": ["./abi/*"],  
+      "@deployments/*": ["./deployments/*"]
     }
   },
-  "include": ["src/**/*.ts", "abi/**/*.ts"],  // ✅ Include ABI in compilation
+  "include": ["src/**/*.ts", "abi/**/*.ts"],  
   "exclude": ["node_modules", "**/*.spec.ts", "**/*/node_modules"]
 }
