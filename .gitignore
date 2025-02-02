@@ -11,3 +11,4 @@ node_modules
 .env
 package-lock.json
 accountInfo.json
+lib/openzeppelin-contracts/
