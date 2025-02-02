@@ -1,6 +1,5 @@
 import { defineConfig } from "@account-kit/plugingen";
-import { SimpleCounterPluginGen } from "./src/plugin-defs/simple-counter/config";
-import { SavingsPluginGenConfig } from "./src/plugin-defs/savings-module/config";
+import { CustomSessionKeyPluginConfig } from "./src/plugin-defs/custom-session-key/config";
 import { sepolia } from "viem/chains";
 import dotenv from "dotenv";
 
@@ -11,6 +10,6 @@ export default defineConfig([
     outDir: "./src/plugin-gens/",
     chain: sepolia,
     rpcUrl: process.env.SEPOLIA_RPC as string,
-    plugins: [SavingsPluginGenConfig],
+    plugins: [CustomSessionKeyPluginConfig],
   },
 ]);

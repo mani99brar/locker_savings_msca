@@ -1,12 +1,12 @@
 import type { PluginConfig } from "@account-kit/plugingen";
 import { parseAbiParameters } from "viem";
 import { sepolia } from "viem/chains";
-import { MultiOwnerPluginGenConfig } from "@account-kit/smart-contracts/plugindefs";
+import { MultiOwnerPluginGenConfig } from "../multi-owner/config";
 import { SessionKeyPluginAbi } from "@abi/SessionKeyPluginAbi";
 import { CustomSessionKeyPluginAddress } from "@deployments/CustomSessionKeyDeployments.json";
 
-export const SessionKeyPluginGenConfig: PluginConfig = {
-  name: "SessionKeyPlugin",
+export const CustomSessionKeyPluginConfig: PluginConfig = {
+  name: "CustomSessionKeyPlugin",
   abi: SessionKeyPluginAbi,
   addresses: {
     [sepolia.id]: CustomSessionKeyPluginAddress as `0x${string}`,
