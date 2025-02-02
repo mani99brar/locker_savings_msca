@@ -8,6 +8,8 @@ abi/
 # Node.js dependencies
 node_modules
 
+dist/
+
 # Environment & Config Files
 .env
 package-lock.json
