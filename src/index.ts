@@ -2,6 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { modularAccountClient } from "./client";
 import { customSessionKeyPluginActions } from "./plugin-gens/custom-session-key/plugin";
+import { CustomSessionKeyPluginAddress } from "@deployments/CustomSessionKeyDeployments.json";
 
 const SAVINGS_PLUGIN_ADDRESS = "0x96BEFBae4867f7E8b0257d905E0E97f132b99DfC";
 /**
@@ -12,7 +13,7 @@ export async function main() {
   const extendedAccount = modularAccountClient.extend(
     customSessionKeyPluginActions
   );
-  console.log(await extendedAccount.getInstalledPlugins({}));
+
   if (args.includes("install")) {
     const res = await extendedAccount.installCustomSessionKeyPlugin({
       args: [[], [], []],
@@ -20,11 +21,15 @@ export async function main() {
     console.log("Plugin installed with ", res.hash);
   } else if (args.includes("uninstall")) {
     const res = await extendedAccount.uninstallPlugin({
-      pluginAddress: "0x0000003E0000a96de4058e1E02a62FaaeCf23d8d",
+      pluginAddress: CustomSessionKeyPluginAddress as `0x${string}`,
     });
     console.log("Plugin uninstalled with", res.hash);
-    console.log("Plugin already installed");
   }
+
+  console.log(
+    "Installed Plugins:",
+    await extendedAccount.getInstalledPlugins({})
+  );
   return;
 }
 
