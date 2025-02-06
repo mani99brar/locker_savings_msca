@@ -1,5 +1,6 @@
 import {
   getContract,
+  encodePacked,
   encodeAbiParameters,
   encodeFunctionData,
   type Address,
@@ -29,6 +30,7 @@ import {
   type Plugin,
   type FunctionReference,
 } from "@account-kit/smart-contracts";
+import { MultiOwnerPlugin } from "../multi-owner/plugin.js";
 
 type ExecutionActions<
   TAccount extends SmartContractAccount | undefined =
@@ -104,7 +106,7 @@ export type SavingsPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  11155111: "0x96BEFBae4867f7E8b0257d905E0E97f132b99DfC" as Address,
+  11155111: "0xD0375320591ff87797CEb03CBeE80C82fD61BC77" as Address,
 } as Record<number, Address>;
 
 export const SavingsPlugin: Plugin<typeof SavingsPluginAbi> = {
@@ -182,7 +184,29 @@ export const savingsPluginActions: <
       throw new ChainNotFoundError();
     }
 
-    const dependencies = params.dependencyOverrides ?? [];
+    const dependencies = params.dependencyOverrides ?? [
+      (() => {
+        const pluginAddress = MultiOwnerPlugin.meta.addresses[chain.id];
+        if (!pluginAddress) {
+          throw new Error(
+            "missing MultiOwnerPlugin address for chain " + chain.name,
+          );
+        }
+
+        return encodePacked(["address", "uint8"], [pluginAddress, 0x0]);
+      })(),
+
+      (() => {
+        const pluginAddress = MultiOwnerPlugin.meta.addresses[chain.id];
+        if (!pluginAddress) {
+          throw new Error(
+            "missing MultiOwnerPlugin address for chain " + chain.name,
+          );
+        }
+
+        return encodePacked(["address", "uint8"], [pluginAddress, 0x1]);
+      })(),
+    ];
     const pluginAddress =
       params.pluginAddress ??
       (SavingsPlugin.meta.addresses[chain.id] as Address | undefined);
