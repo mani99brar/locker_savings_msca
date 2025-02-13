@@ -4,13 +4,14 @@ import path from "path";
 const OUT_DIR = "out";
 const ABI_DIR = "abi";
 
-// Ensure the ABI directory exists
-if (!fs.existsSync(ABI_DIR)) {
-  fs.mkdirSync(ABI_DIR, { recursive: true });
+if (fs.existsSync(ABI_DIR)) {
+  fs.rmSync(ABI_DIR, { recursive: true, force: true }); // Deletes old files
 }
+fs.mkdirSync(ABI_DIR, { recursive: true });
 
 // Read all contract JSON files in the `out/` directory
 const extractAbi = () => {
+  console.log("🔍 Extracting ABI files...");
   const files = fs.readdirSync(OUT_DIR);
   //   console.log(files);
   files.forEach((contract) => {

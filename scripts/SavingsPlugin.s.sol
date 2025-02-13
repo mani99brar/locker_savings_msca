@@ -2,20 +2,20 @@
 pragma solidity ^0.8.26;
 
 import {Script, console} from "forge-std/Script.sol";
-import {SessionKeyPlugin} from "../contracts/plugins/session/SessionKeyPlugin.sol";
+import {SavingsPlugin} from "../contracts/plugins/savings/SavingsPlugin.sol";
 
-contract CustomSessionKeyPlugin is Script {
+contract DeplpySavingsPlugin is Script {
     function run() public {
         vm.startBroadcast();
 
         // Deploy contract
-        SessionKeyPlugin sessionKeyPlugin = new SessionKeyPlugin();
-        address deployedAddress = address(sessionKeyPlugin);
+        SavingsPlugin savingsPlugin = new SavingsPlugin();
+        address deployedAddress = address(savingsPlugin);
 
-        console.log("Deployed SessionKeyPlugin at:", deployedAddress);
+        console.log("Deployed SavingsPlugin at:", deployedAddress);
 
         // Save the address to a file using vm.writeFile
-        string memory filePath = "deployments/CustomSessionKeyDeployments.json";
+        string memory filePath = "deployments/SavingsPlugin.json";
         string memory jsonContent = string.concat(
             '{ "CustomSessionKeyPluginAddress": "',
             vm.toString(deployedAddress),

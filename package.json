@@ -8,7 +8,9 @@
     "execute": "tsx -r dotenv/config src/index.ts",
     "getCFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactual.ts",
     "sendETH": "tsx -r dotenv/config src/walletActions/sendEthToSCA.ts",
-    "deploy": "source .env && forge script scripts/CustomSessionKeyPlugin.s.sol:CustomSessionKeyPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast"
+    "deploy": "source .env && forge script scripts/CustomSessionKeyPlugin.s.sol:CustomSessionKeyPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast",
+    "deploy-savings": "source .env && forge script scripts/SavingsPlugin.s.sol:DeploySavingsPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast",
+    "postinstall": "mkdir -p abi && chmod -R 755 abi && chown -R $(whoami) abi"
   },
   "author": "Alchemy",
   "license": "ISC",
