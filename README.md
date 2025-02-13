@@ -1,33 +1,71 @@
-# Creating a Smart Contract Account and sending ETH
+# **Savings plugin and actions**
 
-Install dependencies:
-```
+## **Savings Plugin Address**  
+📍 `0x4927729791055c0671950E8Ad736e1F0e531eF58`  
+
+🔗 **Reference**: [Smart Contract on Etherscan](https://sepolia.etherscan.io/address/0x4927729791055c0671950E8Ad736e1F0e531eF58#code)
+
+---
+
+## **1️⃣ Install Dependencies**
+```sh
 npm install
 ```
 
-Generate plugins:
-```
+---
+
+## **2️⃣ Generate Plugins**
+```sh
 npx plugingen generate
 ```
 
-Get Counterfactual Address and fund wallet:
-```
+---
+
+## **3️⃣ Get Counterfactual Address & Fund Wallet**
+```sh
 npm run getCFaddress
 npm run sendETH
 ```
 
-Install plugin:
-```
+---
+
+## **4️⃣ Install Plugin**
+```sh
 npm run execute install
 ```
 
-Uninstall plugin:
-```
-npm run execute install
+---
+
+## **5️⃣ Uninstall Plugin**
+```sh
+npm run execute uninstall
 ```
 
+---
 
-Run index file:
+## **6️⃣ Create Savings Automation**
+```sh
+npm run execute create
 ```
+
+---
+
+## **7️⃣ Pause Savings Automation**
+```sh
+npm run execute pause
+```
+
+---
+
+## **8️⃣ Send Tokens**
+```sh
+npm run execute send
+```
+
+---
+
+## **9️⃣ Run the Index File**
+```sh
 npm run execute
 ```
+
