@@ -1,7 +1,7 @@
 import type { PluginConfig } from "@account-kit/plugingen";
 import { sepolia } from "viem/chains";
 import { MultiOwnerPluginGenConfig } from "../multi-owner/config";
-import { SavingsPluginAbi } from "@abi/SavingsPluginAbi.js";
+import { SavingsPluginAbi } from "./abi";
 
 export const SavingsPluginGenConfig: PluginConfig = {
   name: "SavingsPlugin",
