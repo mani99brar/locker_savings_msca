@@ -97,6 +97,7 @@ contract SavingsPlugin is BasePlugin {
         }
         return "";
     }
+    // try and catch so that the plugin doesnt fail if the savings fail
 
     /// @notice This function is overridden solely to satisfy the BasePlugin interface.
     /// @dev Since validation is delegated to the MultiOwner plugin, this function should never be called.
