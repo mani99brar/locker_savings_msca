@@ -1,7 +1,7 @@
 import { parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, http } from "viem";
-import { sepolia } from "viem/chains";
+import { sepolia, baseSepolia } from "viem/chains";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -15,13 +15,13 @@ async function main() {
 
   const wallet = createWalletClient({
     account: account,
-    chain: sepolia,
+    chain: baseSepolia,
     transport: http(ALCHEMY_API_URL),
   });
 
   const txHash = await wallet.sendTransaction({
     to: counterfactualAddress as `0x${string}`,
-    value: parseEther("0.1"),
+    value: parseEther("0.05"),
   });
 
   return txHash;

@@ -1,6 +1,6 @@
 import { defineConfig } from "@account-kit/plugingen";
 import { SavingsPluginGenConfig } from "./src/plugin-defs/savings-module/config";
-import { sepolia } from "viem/chains";
+import { baseSepolia, sepolia } from "viem/chains";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -8,7 +8,7 @@ dotenv.config();
 export default defineConfig([
   {
     outDir: "./src/plugin-gens/",
-    chain: sepolia,
+    chain: baseSepolia,
     rpcUrl: process.env.SEPOLIA_RPC as string,
     plugins: [SavingsPluginGenConfig],
   },

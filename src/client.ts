@@ -1,10 +1,10 @@
 import { LocalAccountSigner } from "@aa-sdk/core";
-import { alchemy, sepolia } from "@account-kit/infra";
+import { alchemy, sepolia, baseSepolia } from "@account-kit/infra";
 import { createModularAccountAlchemyClient } from "@account-kit/smart-contracts";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-export const chain = sepolia;
+export const chain = baseSepolia;
 const PRIV_KEY = process.env.PRIV_KEY!;
 
 export const modularAccountClient = await createModularAccountAlchemyClient({

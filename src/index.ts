@@ -34,7 +34,7 @@ export async function main() {
 
     case "send":
       const AMOUNT = BigInt(1500000);
-      const TOKEN_ADDRESS = "0x1E00B1F11A048e789E7eE9de394F40DA45ADe0AA";
+      const TOKEN_ADDRESS = "0x2EB77941b57d41a7686957E228a264560Ab20634";
       const RECIPIENT = "0x69dBBAf6CE456F46224c41Db842cAA92E9edf629";
       await sendTokens(TOKEN_ADDRESS, AMOUNT, RECIPIENT, extendedAccount);
       break;
