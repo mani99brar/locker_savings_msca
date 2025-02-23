@@ -129,6 +129,7 @@ export type SavingsPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
+  84532: "0x644Be3a596F082CC36D0bD929ABe855180536ac3" as Address,
   11155111: "0x4927729791055c0671950E8Ad736e1F0e531eF58" as Address,
 } as Record<number, Address>;
 

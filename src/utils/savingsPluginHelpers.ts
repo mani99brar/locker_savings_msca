@@ -1,4 +1,5 @@
-const SAVINGS_PLUGIN_ADDRESS = "0x4927729791055c0671950E8Ad736e1F0e531eF58";
+// const SAVINGS_PLUGIN_ADDRESS = "0x4927729791055c0671950E8Ad736e1F0e531eF58"; // Sepolia
+const SAVINGS_PLUGIN_ADDRESS = "0x644Be3a596F082CC36D0bD929ABe855180536ac3"; // Base Sepolia
 
 async function installSavingsPlugin(extendedAccount: any) {
   console.log("Installing the savings plugin...");
