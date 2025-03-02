@@ -6,8 +6,11 @@
   "type": "module",
   "scripts": {
     "execute": "tsx -r dotenv/config src/index.ts",
+    "executeV2": " tsx -r dotenv/config src/maV2/index.ts",
     "getCFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactual.ts",
-    "sendETH": "tsx -r dotenv/config src/walletActions/sendEthToSCA.ts",
+    "getV2CFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactualForV2.ts",
+    "sendETH": "tsx -r dotenv/config src/walletActions/sendEthToSCA.ts V1",
+    "sendETHv2": "tsx -r dotenv/config src/walletActions/sendEthToSCA.ts V2",
     "deploy": "source .env && forge script scripts/CustomSessionKeyPlugin.s.sol:CustomSessionKeyPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast",
     "deploy-savings": "source .env && forge script scripts/SavingsPlugin.s.sol:DeploySavingsPlugin --rpc-url $SEPOLIA_RPC --private-key $PRIV_KEY --broadcast",
     "postinstall": "mkdir -p abi && chmod -R 755 abi && chown -R $(whoami) abi"
@@ -16,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@account-kit/plugingen": "^4.8.0",
-    "@account-kit/smart-contracts": "^4.8.0",
+    "@account-kit/smart-contracts": "^4.14.0",
     "@alchemy/aa-alchemy": "3.2.1",
     "@alchemy/aa-core": "3.2.1",
     "dotenv": "^16.3.1",
