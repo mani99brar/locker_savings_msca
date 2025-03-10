@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "execute": "tsx -r dotenv/config src/index.ts",
+    "executeSplit": "tsx -r dotenv/config src/plugin-clients/splitClient.ts",
     "executeV2": " tsx -r dotenv/config src/maV2/index.ts",
     "getCFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactual.ts",
     "getV2CFaddress": "tsx -r dotenv/config src/walletActions/getCounterfactualForV2.ts",
