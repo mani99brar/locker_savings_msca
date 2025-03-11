@@ -1,5 +1,5 @@
 // const SAVINGS_PLUGIN_ADDRESS = "0x4927729791055c0671950E8Ad736e1F0e531eF58"; // Sepolia
-const SPLIT_PLUGIN_ADDRESS = "0xC1d4c6842e7388b53d09Bcc10Bd4FfC122c0c6DA"; // Base Sepolia
+import { SPLIT_PLUGIN_ADDRESS } from "../plugin-defs/split-module/config";
 
 async function installSplitPlugin(extendedAccount: any) {
   console.log("Installing the Split plugin...");
@@ -7,7 +7,7 @@ async function installSplitPlugin(extendedAccount: any) {
     console.log("Split plugin already installed.");
     return null;
   }
-  const res = await extendedAccount.installSavingsPlugin({
+  const res = await extendedAccount.installSplitPlugin({
     args: [],
   });
   console.log("Split Plugin installed:", res.hash);
@@ -21,34 +21,39 @@ async function uninstallSavingsPlugin(extendedAccount: any) {
     return null;
   }
   const res = await extendedAccount.uninstallPlugin({
-    args: [SPLIT_PLUGIN_ADDRESS],
+    pluginAddress: SPLIT_PLUGIN_ADDRESS,
   });
   console.log("Split Plugin uninstalled:", res.hash);
   return res;
 }
 
 type SplitAutomationArgs = {
-    tokenAddress: string;
-    receiverAddresses: string[];
-    percentage: number[];
-}
- 
+  tokenAddress: string;
+  receiverAddresses: string[];
+  percentage: number[];
+};
 
-async function createSplit(extendedAccount: any,splitArgs:SplitAutomationArgs): Promise<any> {
-    console.log("Creating automation...");
-    const {tokenAddress, percentage, receiverAddresses} = splitArgs;
+async function createSplit(
+  extendedAccount: any,
+  splitArgs: SplitAutomationArgs
+): Promise<any> {
+  console.log("Creating automation...");
+  const { tokenAddress, percentage, receiverAddresses } = splitArgs;
   if (!(await isSplitPluginInstalled(extendedAccount))) {
     console.log("Split plugin not installed.");
     return null;
   }
-  const res = await extendedAccount.createAutomation({
+  const res = await extendedAccount.createSplit({
     args: [tokenAddress, receiverAddresses, percentage],
   });
   console.log("Automation created with:", res.hash);
   return res;
 }
 
-async function pauseAutomation(extendedAccount: any, configIndex: number): Promise<any> {
+async function pauseAutomation(
+  extendedAccount: any,
+  configIndex: number
+): Promise<any> {
   console.log("Pausing automation...");
   if (!(await isSplitPluginInstalled(extendedAccount))) {
     console.log("Split plugin not installed.");
@@ -58,6 +63,19 @@ async function pauseAutomation(extendedAccount: any, configIndex: number): Promi
     args: [configIndex],
   });
   console.log("Automation paused with:", res.hash);
+  return res;
+}
+
+async function split(extendedAccount: any, configIndex: number): Promise<any> {
+  console.log("Splitting...");
+  if (!(await isSplitPluginInstalled(extendedAccount))) {
+    console.log("Split plugin not installed.");
+    return null;
+  }
+  const res = await extendedAccount.split({
+    args: [BigInt(configIndex)],
+  });
+  console.log("Split with:", res.hash);
   return res;
 }
 
@@ -75,6 +93,7 @@ export {
   installSplitPlugin,
   uninstallSavingsPlugin,
   createSplit,
-    pauseAutomation,
-  type SplitAutomationArgs
+  pauseAutomation,
+  split,
+  type SplitAutomationArgs,
 };

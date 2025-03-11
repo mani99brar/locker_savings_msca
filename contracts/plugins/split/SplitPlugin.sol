@@ -77,6 +77,7 @@ contract SplitPlugin is BasePlugin {
     }
 
     function split(uint256 _configIndex) public {
+        // Add a maxSplit option to enable balance distribution among different splits
         SplitConfig memory config = splitConfigs[_configIndex];
         IERC20 token = IERC20(config.tokenAddress);
         uint256 balance = token.balanceOf(address(msg.sender));
@@ -86,8 +87,18 @@ contract SplitPlugin is BasePlugin {
         }
 
         for (uint256 i = 0; i < config.splitAddresses.length; i++) {
+            
             uint256 amount = (balance * config.percentages[i]) / 100;
-            token.transfer(config.splitAddresses[i], amount);
+            if(amount>0){
+            IPluginExecutor(msg.sender).executeFromPluginExternal(
+                    config.tokenAddress,
+                    0,
+                    abi.encodeWithSelector(
+                        IERC20.transfer.selector,
+                        config.splitAddresses[i],
+                        amount
+                    ));
+            }
         }
 
         emit SplitExecuted(msg.sender, config.tokenAddress, config.splitAddresses, config.percentages);
@@ -129,7 +140,7 @@ contract SplitPlugin is BasePlugin {
 
 
         // Delegate user operation validation to the dependency in slot 1.
-        manifest.userOpValidationFunctions = new ManifestAssociatedFunction[](2);
+        manifest.userOpValidationFunctions = new ManifestAssociatedFunction[](3);
         manifest.userOpValidationFunctions[0] = ManifestAssociatedFunction({
             executionSelector: this.createSplit.selector,
             associatedFunction: ManifestFunction({
@@ -146,7 +157,7 @@ contract SplitPlugin is BasePlugin {
                 dependencyIndex: _MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION
             })
         });
-        manifest.userOpValidationFunctions[0] = ManifestAssociatedFunction({
+        manifest.userOpValidationFunctions[2] = ManifestAssociatedFunction({
             executionSelector: this.split.selector,
             associatedFunction: ManifestFunction({
                 functionType: ManifestAssociatedFunctionType.DEPENDENCY,

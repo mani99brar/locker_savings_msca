@@ -152,7 +152,7 @@ export type SplitPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  84532: "0x3e71215c32095fd32c458E683D557709c3cef2f9" as Address,
+  84532: "0xB46830d65d438d75b7177eE5450a019fe5C905f0" as Address,
 } as Record<number, Address>;
 
 export const SplitPlugin: Plugin<typeof SplitPluginAbi> = {
@@ -676,7 +676,7 @@ export const SplitPluginAbi = [
     name: "postExecutionHook",
     inputs: [
       { name: "", type: "uint8", internalType: "uint8" },
-      { name: "preExecHookData", type: "bytes", internalType: "bytes" },
+      { name: "", type: "bytes", internalType: "bytes" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -685,9 +685,9 @@ export const SplitPluginAbi = [
     type: "function",
     name: "preExecutionHook",
     inputs: [
-      { name: "", type: "uint8", internalType: "uint8" },
-      { name: "", type: "address", internalType: "address" },
-      { name: "", type: "uint256", internalType: "uint256" },
+      { name: "functionId", type: "uint8", internalType: "uint8" },
+      { name: "sender", type: "address", internalType: "address" },
+      { name: "value", type: "uint256", internalType: "uint256" },
       { name: "data", type: "bytes", internalType: "bytes" },
     ],
     outputs: [{ name: "", type: "bytes", internalType: "bytes" }],
@@ -777,7 +777,6 @@ export const SplitPluginAbi = [
     type: "function",
     name: "splitConfigIndexes",
     inputs: [
-      { name: "", type: "address", internalType: "address" },
       { name: "", type: "address", internalType: "address" },
       { name: "", type: "uint256", internalType: "uint256" },
     ],
