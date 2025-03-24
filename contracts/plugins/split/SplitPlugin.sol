@@ -12,7 +12,7 @@ import {SIG_VALIDATION_PASSED
 
 /// @title Savings Plugin
 /// @author Locker
-/// @notice This plugin lets users automatically save when making payments
+/// @notice This plugin lets users automatically split tokens on any executoin.
 contract SplitPlugin is BasePlugin {
     string public constant NAME = "Locker Split Plugin";
     string public constant VERSION = "1.0.0";
@@ -22,29 +22,37 @@ contract SplitPlugin is BasePlugin {
     uint256 internal constant _MANIFEST_DEPENDENCY_INDEX_OWNER_RUNTIME_VALIDATION = 0;
     uint256 internal constant _MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION = 1;
 
+    // Split config consts
+    uint8 internal constant MAX_CONFIGS = 5;
+    uint8 internal constant MAX_SPLIT = 10;
+
     struct SplitConfig {
-        address tokenAddress;
-        address[] splitAddresses;
-        uint32[] percentages;
-        bool automationEnabled;
+        address tokenAddress; // tokenAddress to be split
+        address[] splitAddresses; // receiver addresses of the split
+        uint32[] percentages; // respective percentages of each splitAddress
+        bool automationEnabled; // execute split in postExec hook
+        uint256 maxSplitAmount; // token limit for the split
     }
 
     event SplitConfigCreated(address indexed user, address tokenAddress, address[] splitAddresses, uint32[] percentages);
     event SplitExecuted(address indexed user, address tokenAddress, address[] splitAddresses, uint32[] percentages);
-
+    event SplitConfigDeleted(uint256 indexed configIndex);
 
     mapping(address =>  uint256[]) public splitConfigIndexes;
     mapping(uint256 => SplitConfig) public splitConfigs;
     uint256 public splitConfigCount;
 
+    /// @dev Creates a split configuration for the user
     function createSplit(
         address _tokenAddress,
         address[] memory _splitAddresses,
         uint32[] memory _percentages
     ) external {
         require(_splitAddresses.length > 0, "SplitPlugin: No split addresses provided");
+        require(_splitAddresses.length<MAX_SPLIT,"SplitPlugin: Split addresses limit exceeded");
         require(_splitAddresses.length == _percentages.length, "SplitPlugin: Invalid split configuration");
-
+        uint256[] storage userIndexes = splitConfigIndexes[msg.sender];
+        require(userIndexes.length<MAX_CONFIGS,"SplitPlugin: Split limit reached");
         uint64 totalPercentage = 0;
         for (uint8 i = 0; i < _percentages.length; i++) {
             totalPercentage += _percentages[i];
@@ -56,39 +64,37 @@ contract SplitPlugin is BasePlugin {
             _tokenAddress,
             _splitAddresses,
             _percentages,
-            true
+            true,
+            0
         );
         
-        uint256[] storage userIndexes = splitConfigIndexes[msg.sender];
         userIndexes.push(currentSplitConfigIndex);
         splitConfigs[currentSplitConfigIndex] = config;        
 
         emit SplitConfigCreated(msg.sender, _tokenAddress, _splitAddresses, _percentages);
     }
 
+    /// @dev Pauses the automation for the given split config
     function pauseAutomation(uint256 _configIndex) external {
+        require(isSplitCreator(_configIndex, msg.sender),"SplitPlugin: Invalid pauseAutomation request");
         SplitConfig storage config = splitConfigs[_configIndex];
         config.automationEnabled = false;
     }
 
-    function onInstall(bytes calldata) external pure override {}
-
-    function onUninstall(bytes calldata) external override {
-    }
-
-    function split(uint256 _configIndex) public {
-        // Add a maxSplit option to enable balance distribution among different splits
+    /// @dev Splits the token balance of the user for a config
+     function split(uint256 _configIndex) public {
         SplitConfig memory config = splitConfigs[_configIndex];
         IERC20 token = IERC20(config.tokenAddress);
-        uint256 balance = token.balanceOf(address(msg.sender));
-
-        if(!config.automationEnabled ||balance < 100) {
+        uint256 totalSplitAmount = token.balanceOf(address(msg.sender));
+        if(totalSplitAmount>config.maxSplitAmount && config.maxSplitAmount!=0){
+            totalSplitAmount = config.maxSplitAmount;
+        }
+        if(!config.automationEnabled || totalSplitAmount < 100) {
             return;
         }
 
         for (uint256 i = 0; i < config.splitAddresses.length; i++) {
-            
-            uint256 amount = (balance * config.percentages[i]) / 100;
+            uint256 amount = (totalSplitAmount * config.percentages[i]) / 100;
             if(amount>0){
             IPluginExecutor(msg.sender).executeFromPluginExternal(
                     config.tokenAddress,
@@ -104,6 +110,46 @@ contract SplitPlugin is BasePlugin {
         emit SplitExecuted(msg.sender, config.tokenAddress, config.splitAddresses, config.percentages);
     }
 
+    /// @dev Updates the split limit for the given split config
+    function updateSplitLimit(uint256 _configIndex, uint256 _maxSplitLimit) external {
+        require(isSplitCreator(_configIndex, msg.sender),"SplitPlugin: Invalid pauseAutomation request");
+        require(_maxSplitLimit>100);
+        SplitConfig storage config = splitConfigs[_configIndex];
+        config.maxSplitAmount = _maxSplitLimit;
+    }
+
+    /// @dev Deletes the split config and removes the index from the user's splitConfigIndexes
+    function deleteSplitConfig(uint256 _configIndex) external {
+        uint256[] storage userIndexes = splitConfigIndexes[msg.sender];
+        for(uint8 i=0; i < userIndexes.length;i++){
+            if(_configIndex == userIndexes[i]){
+                userIndexes[i] = userIndexes[userIndexes.length-1];
+                userIndexes.pop();
+                delete splitConfigs[_configIndex];
+                emit SplitConfigDeleted(_configIndex);
+                return;
+            }
+        }
+    }
+
+    /// @dev Checks if the given address is the creator of the split config
+    function isSplitCreator(uint256 _configIndex, address _splitCreator) public view returns(bool) {
+        bool isCreator = false;
+        uint256[] memory splitIndexes = splitConfigIndexes[_splitCreator];
+        for(uint8 i=0;i <splitIndexes.length;i++){
+            if(_configIndex==splitIndexes[i]){
+                isCreator = true;
+                return isCreator;
+            }
+        }
+        return isCreator;
+    }
+
+    function onInstall(bytes calldata) external pure override {}
+
+    function onUninstall(bytes calldata) external override {}
+
+
     function postExecutionHook(uint8, bytes calldata ) external override virtual {
         uint256[] memory configIndexes = splitConfigIndexes[msg.sender];
             if(configIndexes.length == 0) {
@@ -113,6 +159,7 @@ contract SplitPlugin is BasePlugin {
                 split(configIndexes[i]);
             }
     }
+
 
     /// @notice This function is overridden solely to satisfy the BasePlugin interface.
     /// @dev Since validation is delegated to the MultiOwner plugin, this function should never be called.
@@ -133,14 +180,16 @@ contract SplitPlugin is BasePlugin {
         manifest.dependencyInterfaceIds[_MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION] = type(IPlugin).interfaceId;
 
         // List the execution functions provided by this plugin.
-        manifest.executionFunctions = new bytes4[](3);
+        manifest.executionFunctions = new bytes4[](5);
         manifest.executionFunctions[0] = this.createSplit.selector;
         manifest.executionFunctions[1] = this.pauseAutomation.selector;
         manifest.executionFunctions[2] = this.split.selector;
+        manifest.executionFunctions[3] = this.updateSplitLimit.selector;
+        manifest.executionFunctions[4] = this.deleteSplitConfig.selector;
 
 
         // Delegate user operation validation to the dependency in slot 1.
-        manifest.userOpValidationFunctions = new ManifestAssociatedFunction[](3);
+        manifest.userOpValidationFunctions = new ManifestAssociatedFunction[](5);
         manifest.userOpValidationFunctions[0] = ManifestAssociatedFunction({
             executionSelector: this.createSplit.selector,
             associatedFunction: ManifestFunction({
@@ -159,6 +208,22 @@ contract SplitPlugin is BasePlugin {
         });
         manifest.userOpValidationFunctions[2] = ManifestAssociatedFunction({
             executionSelector: this.split.selector,
+            associatedFunction: ManifestFunction({
+                functionType: ManifestAssociatedFunctionType.DEPENDENCY,
+                functionId: 0, 
+                dependencyIndex: _MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION
+            })
+        });
+        manifest.userOpValidationFunctions[3] = ManifestAssociatedFunction({
+            executionSelector: this.updateSplitLimit.selector,
+            associatedFunction: ManifestFunction({
+                functionType: ManifestAssociatedFunctionType.DEPENDENCY,
+                functionId: 0, 
+                dependencyIndex: _MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION
+            })
+        });
+        manifest.userOpValidationFunctions[4] = ManifestAssociatedFunction({
+            executionSelector: this.deleteSplitConfig.selector,
             associatedFunction: ManifestFunction({
                 functionType: ManifestAssociatedFunctionType.DEPENDENCY,
                 functionId: 0, 
@@ -187,7 +252,7 @@ contract SplitPlugin is BasePlugin {
         });
 
         // We do not use runtime validation, so leave these arrays empty.
-        manifest.runtimeValidationFunctions = new ManifestAssociatedFunction[](0);
+        manifest.runtimeValidationFunctions = new ManifestAssociatedFunction[](0); 
         manifest.preRuntimeValidationHooks = new ManifestAssociatedFunction[](0);
 
         // Set permissions.
