@@ -5,7 +5,7 @@ import { SplitPluginAbi } from "./abi";
 
 // sepolia 0xFEd11a0C1c292F2823757925122222bb28b13443
 export const SPLIT_PLUGIN_ADDRESS =
-  "0x821fA29F49e46c022e96DC840058Fc4c94F8d8aF" as `0x${string}`;
+  "0x4d1B257678247A2Bc84A4B8A8a77e16D26484CFe" as `0x${string}`;
 
 export const SplitPluginGenConfig: PluginConfig = {
   name: "SplitPlugin",

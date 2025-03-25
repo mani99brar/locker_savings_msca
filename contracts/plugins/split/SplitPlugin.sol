@@ -23,8 +23,8 @@ contract SplitPlugin is BasePlugin {
     uint256 internal constant _MANIFEST_DEPENDENCY_INDEX_OWNER_USER_OP_VALIDATION = 1;
 
     // Split config consts
-    uint8 internal constant MAX_CONFIGS = 5;
-    uint8 internal constant MAX_SPLIT = 10;
+    uint8 internal constant MAX_TOKEN_CONFIGS = 5;
+    uint8 internal constant MAX_SPLIT_RECIPIENTS = 10;
 
     struct SplitConfig {
         address tokenAddress; // tokenAddress to be split
@@ -48,10 +48,10 @@ contract SplitPlugin is BasePlugin {
         uint8[] memory _percentages
     ) external {
         require(_splitAddresses.length > 0, "SplitPlugin: No split addresses provided");
-        require(_splitAddresses.length<MAX_SPLIT,"SplitPlugin: Split addresses limit exceeded");
+        require(_splitAddresses.length<MAX_TOKEN_CONFIGS,"SplitPlugin: Split addresses limit exceeded");
         require(_splitAddresses.length == _percentages.length, "SplitPlugin: Invalid split configuration");
         uint256[] storage userIndexes = splitConfigIndexes[msg.sender];
-        require(userIndexes.length<MAX_CONFIGS,"SplitPlugin: Split limit reached");
+        require(userIndexes.length<MAX_SPLIT_RECIPIENTS,"SplitPlugin: Split limit reached");
         for (uint256 i = 0; i < userIndexes.length; i++) {
             if (splitConfigs[userIndexes[i]].tokenAddress == _tokenAddress) {
             revert("SplitPlugin: Config for token already exists");
