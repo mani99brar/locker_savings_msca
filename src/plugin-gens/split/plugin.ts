@@ -80,6 +80,32 @@ type ExecutionActions<
       GetAccountParameter<TAccount> &
       GetContextParameter<TContext>,
   ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
+
+  updateSplitConfig: (
+    args: Pick<
+      EncodeFunctionDataParameters<
+        typeof SplitPluginExecutionFunctionAbi,
+        "updateSplitConfig"
+      >,
+      "args"
+    > &
+      UserOperationOverridesParameter<TEntryPointVersion> &
+      GetAccountParameter<TAccount> &
+      GetContextParameter<TContext>,
+  ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
+
+  deleteSplitConfig: (
+    args: Pick<
+      EncodeFunctionDataParameters<
+        typeof SplitPluginExecutionFunctionAbi,
+        "deleteSplitConfig"
+      >,
+      "args"
+    > &
+      UserOperationOverridesParameter<TEntryPointVersion> &
+      GetAccountParameter<TAccount> &
+      GetContextParameter<TContext>,
+  ) => Promise<SendUserOperationResult<TEntryPointVersion>>;
 };
 
 type InstallArgs = [];
@@ -138,6 +164,26 @@ type ReadAndEncodeActions = {
       "args"
     >,
   ) => Hex;
+
+  encodeUpdateSplitConfig: (
+    args: Pick<
+      EncodeFunctionDataParameters<
+        typeof SplitPluginExecutionFunctionAbi,
+        "updateSplitConfig"
+      >,
+      "args"
+    >,
+  ) => Hex;
+
+  encodeDeleteSplitConfig: (
+    args: Pick<
+      EncodeFunctionDataParameters<
+        typeof SplitPluginExecutionFunctionAbi,
+        "deleteSplitConfig"
+      >,
+      "args"
+    >,
+  ) => Hex;
 };
 
 export type SplitPluginActions<
@@ -152,7 +198,7 @@ export type SplitPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  84532: "0xB46830d65d438d75b7177eE5450a019fe5C905f0" as Address,
+  84532: "0x821fA29F49e46c022e96DC840058Fc4c94F8d8aF" as Address,
 } as Record<number, Address>;
 
 export const SplitPlugin: Plugin<typeof SplitPluginAbi> = {
@@ -243,6 +289,46 @@ export const splitPluginActions: <
 
     return client.sendUserOperation({ uo, overrides, account, context });
   },
+  updateSplitConfig({ args, overrides, context, account = client.account }) {
+    if (!account) {
+      throw new AccountNotFoundError();
+    }
+    if (!isSmartAccountClient(client)) {
+      throw new IncompatibleClientError(
+        "SmartAccountClient",
+        "updateSplitConfig",
+        client,
+      );
+    }
+
+    const uo = encodeFunctionData({
+      abi: SplitPluginExecutionFunctionAbi,
+      functionName: "updateSplitConfig",
+      args,
+    });
+
+    return client.sendUserOperation({ uo, overrides, account, context });
+  },
+  deleteSplitConfig({ args, overrides, context, account = client.account }) {
+    if (!account) {
+      throw new AccountNotFoundError();
+    }
+    if (!isSmartAccountClient(client)) {
+      throw new IncompatibleClientError(
+        "SmartAccountClient",
+        "deleteSplitConfig",
+        client,
+      );
+    }
+
+    const uo = encodeFunctionData({
+      abi: SplitPluginExecutionFunctionAbi,
+      functionName: "deleteSplitConfig",
+      args,
+    });
+
+    return client.sendUserOperation({ uo, overrides, account, context });
+  },
   installSplitPlugin({
     account = client.account,
     overrides,
@@ -327,6 +413,20 @@ export const splitPluginActions: <
       args,
     });
   },
+  encodeUpdateSplitConfig({ args }) {
+    return encodeFunctionData({
+      abi: SplitPluginExecutionFunctionAbi,
+      functionName: "updateSplitConfig",
+      args,
+    });
+  },
+  encodeDeleteSplitConfig({ args }) {
+    return encodeFunctionData({
+      abi: SplitPluginExecutionFunctionAbi,
+      functionName: "deleteSplitConfig",
+      args,
+    });
+  },
 });
 
 export const SplitPluginExecutionFunctionAbi = [
@@ -336,7 +436,7 @@ export const SplitPluginExecutionFunctionAbi = [
     inputs: [
       { name: "_tokenAddress", type: "address", internalType: "address" },
       { name: "_splitAddresses", type: "address[]", internalType: "address[]" },
-      { name: "_percentages", type: "uint32[]", internalType: "uint32[]" },
+      { name: "_percentages", type: "uint8[]", internalType: "uint8[]" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -353,6 +453,26 @@ export const SplitPluginExecutionFunctionAbi = [
   {
     type: "function",
     name: "split",
+    inputs: [
+      { name: "_configIndex", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "updateSplitConfig",
+    inputs: [
+      { name: "_configIndex", type: "uint256", internalType: "uint256" },
+      { name: "_splitAddresses", type: "address[]", internalType: "address[]" },
+      { name: "_percentages", type: "uint8[]", internalType: "uint8[]" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "deleteSplitConfig",
     inputs: [
       { name: "_configIndex", type: "uint256", internalType: "uint256" },
     ],
@@ -389,10 +509,29 @@ export const SplitPluginAbi = [
     inputs: [
       { name: "_tokenAddress", type: "address", internalType: "address" },
       { name: "_splitAddresses", type: "address[]", internalType: "address[]" },
-      { name: "_percentages", type: "uint32[]", internalType: "uint32[]" },
+      { name: "_percentages", type: "uint8[]", internalType: "uint8[]" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "deleteSplitConfig",
+    inputs: [
+      { name: "_configIndex", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "isSplitCreator",
+    inputs: [
+      { name: "_configIndex", type: "uint256", internalType: "uint256" },
+      { name: "_splitCreator", type: "address", internalType: "address" },
+    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -802,6 +941,17 @@ export const SplitPluginAbi = [
   },
   {
     type: "function",
+    name: "updateSplitConfig",
+    inputs: [
+      { name: "_configIndex", type: "uint256", internalType: "uint256" },
+      { name: "_splitAddresses", type: "address[]", internalType: "address[]" },
+      { name: "_percentages", type: "uint8[]", internalType: "uint8[]" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "userOpValidationFunction",
     inputs: [
       { name: "", type: "uint8", internalType: "uint8" },
@@ -846,22 +996,23 @@ export const SplitPluginAbi = [
     inputs: [
       { name: "user", type: "address", indexed: true, internalType: "address" },
       {
-        name: "tokenAddress",
-        type: "address",
-        indexed: false,
-        internalType: "address",
+        name: "configIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
       },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "SplitConfigDeleted",
+    inputs: [
       {
-        name: "splitAddresses",
-        type: "address[]",
-        indexed: false,
-        internalType: "address[]",
-      },
-      {
-        name: "percentages",
-        type: "uint32[]",
-        indexed: false,
-        internalType: "uint32[]",
+        name: "configIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
       },
     ],
     anonymous: false,
@@ -870,24 +1021,11 @@ export const SplitPluginAbi = [
     type: "event",
     name: "SplitExecuted",
     inputs: [
-      { name: "user", type: "address", indexed: true, internalType: "address" },
       {
-        name: "tokenAddress",
-        type: "address",
-        indexed: false,
-        internalType: "address",
-      },
-      {
-        name: "splitAddresses",
-        type: "address[]",
-        indexed: false,
-        internalType: "address[]",
-      },
-      {
-        name: "percentages",
-        type: "uint32[]",
-        indexed: false,
-        internalType: "uint32[]",
+        name: "configIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
       },
     ],
     anonymous: false,

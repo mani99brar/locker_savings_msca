@@ -54,12 +54,49 @@ export const SplitPluginAbi = [
       },
       {
         name: "_percentages",
-        type: "uint32[]",
-        internalType: "uint32[]",
+        type: "uint8[]",
+        internalType: "uint8[]",
       },
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "deleteSplitConfig",
+    inputs: [
+      {
+        name: "_configIndex",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "isSplitCreator",
+    inputs: [
+      {
+        name: "_configIndex",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "_splitCreator",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -695,6 +732,29 @@ export const SplitPluginAbi = [
   },
   {
     type: "function",
+    name: "updateSplitConfig",
+    inputs: [
+      {
+        name: "_configIndex",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "_splitAddresses",
+        type: "address[]",
+        internalType: "address[]",
+      },
+      {
+        name: "_percentages",
+        type: "uint8[]",
+        internalType: "uint8[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "userOpValidationFunction",
     inputs: [
       {
@@ -790,22 +850,23 @@ export const SplitPluginAbi = [
         internalType: "address",
       },
       {
-        name: "tokenAddress",
-        type: "address",
-        indexed: false,
-        internalType: "address",
+        name: "configIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
       },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "SplitConfigDeleted",
+    inputs: [
       {
-        name: "splitAddresses",
-        type: "address[]",
-        indexed: false,
-        internalType: "address[]",
-      },
-      {
-        name: "percentages",
-        type: "uint32[]",
-        indexed: false,
-        internalType: "uint32[]",
+        name: "configIndex",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
       },
     ],
     anonymous: false,
@@ -815,28 +876,10 @@ export const SplitPluginAbi = [
     name: "SplitExecuted",
     inputs: [
       {
-        name: "user",
-        type: "address",
+        name: "configIndex",
+        type: "uint256",
         indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "tokenAddress",
-        type: "address",
-        indexed: false,
-        internalType: "address",
-      },
-      {
-        name: "splitAddresses",
-        type: "address[]",
-        indexed: false,
-        internalType: "address[]",
-      },
-      {
-        name: "percentages",
-        type: "uint32[]",
-        indexed: false,
-        internalType: "uint32[]",
+        internalType: "uint256",
       },
     ],
     anonymous: false,

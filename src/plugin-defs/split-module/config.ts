@@ -3,8 +3,9 @@ import { sepolia, baseSepolia } from "viem/chains";
 import { MultiOwnerPluginGenConfig } from "../multi-owner/config";
 import { SplitPluginAbi } from "./abi";
 
+// sepolia 0xFEd11a0C1c292F2823757925122222bb28b13443
 export const SPLIT_PLUGIN_ADDRESS =
-  "0xB46830d65d438d75b7177eE5450a019fe5C905f0" as `0x${string}`;
+  "0x821fA29F49e46c022e96DC840058Fc4c94F8d8aF" as `0x${string}`;
 
 export const SplitPluginGenConfig: PluginConfig = {
   name: "SplitPlugin",

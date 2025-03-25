@@ -29,13 +29,12 @@ contract SplitPlugin is BasePlugin {
     struct SplitConfig {
         address tokenAddress; // tokenAddress to be split
         address[] splitAddresses; // receiver addresses of the split
-        uint32[] percentages; // respective percentages of each splitAddress
+        uint8[] percentages; // respective percentages of each splitAddress
         bool automationEnabled; // execute split in postExec hook
-        uint256 maxSplitAmount; // token limit for the split
     }
 
-    event SplitConfigCreated(address indexed user, address tokenAddress, address[] splitAddresses, uint32[] percentages);
-    event SplitExecuted(address indexed user, address tokenAddress, address[] splitAddresses, uint32[] percentages);
+    event SplitConfigCreated(address indexed user, uint256 indexed configIndex);
+    event SplitExecuted(uint256 indexed configIndex);
     event SplitConfigDeleted(uint256 indexed configIndex);
 
     mapping(address =>  uint256[]) public splitConfigIndexes;
@@ -46,13 +45,19 @@ contract SplitPlugin is BasePlugin {
     function createSplit(
         address _tokenAddress,
         address[] memory _splitAddresses,
-        uint32[] memory _percentages
+        uint8[] memory _percentages
     ) external {
         require(_splitAddresses.length > 0, "SplitPlugin: No split addresses provided");
         require(_splitAddresses.length<MAX_SPLIT,"SplitPlugin: Split addresses limit exceeded");
         require(_splitAddresses.length == _percentages.length, "SplitPlugin: Invalid split configuration");
         uint256[] storage userIndexes = splitConfigIndexes[msg.sender];
         require(userIndexes.length<MAX_CONFIGS,"SplitPlugin: Split limit reached");
+        for (uint256 i = 0; i < userIndexes.length; i++) {
+            if (splitConfigs[userIndexes[i]].tokenAddress == _tokenAddress) {
+            revert("SplitPlugin: Config for token already exists");
+            }
+        }
+
         uint64 totalPercentage = 0;
         for (uint8 i = 0; i < _percentages.length; i++) {
             totalPercentage += _percentages[i];
@@ -64,14 +69,13 @@ contract SplitPlugin is BasePlugin {
             _tokenAddress,
             _splitAddresses,
             _percentages,
-            true,
-            0
+            true
         );
         
         userIndexes.push(currentSplitConfigIndex);
         splitConfigs[currentSplitConfigIndex] = config;        
 
-        emit SplitConfigCreated(msg.sender, _tokenAddress, _splitAddresses, _percentages);
+        emit SplitConfigCreated(msg.sender, currentSplitConfigIndex);
     }
 
     /// @dev Pauses the automation for the given split config
@@ -86,9 +90,6 @@ contract SplitPlugin is BasePlugin {
         SplitConfig memory config = splitConfigs[_configIndex];
         IERC20 token = IERC20(config.tokenAddress);
         uint256 totalSplitAmount = token.balanceOf(address(msg.sender));
-        if(totalSplitAmount>config.maxSplitAmount && config.maxSplitAmount!=0){
-            totalSplitAmount = config.maxSplitAmount;
-        }
         if(!config.automationEnabled || totalSplitAmount < 100) {
             return;
         }
@@ -107,15 +108,24 @@ contract SplitPlugin is BasePlugin {
             }
         }
 
-        emit SplitExecuted(msg.sender, config.tokenAddress, config.splitAddresses, config.percentages);
+        emit SplitExecuted(_configIndex);
     }
 
     /// @dev Updates the split limit for the given split config
-    function updateSplitLimit(uint256 _configIndex, uint256 _maxSplitLimit) external {
+    function updateSplitConfig(uint256 _configIndex, address[] memory _splitAddresses,
+        uint8[] memory _percentages) external {
         require(isSplitCreator(_configIndex, msg.sender),"SplitPlugin: Invalid pauseAutomation request");
-        require(_maxSplitLimit>100);
+
+        uint64 totalPercentage = 0;
+        for (uint8 i = 0; i < _percentages.length; i++) {
+            totalPercentage += _percentages[i];
+        }
+        require(totalPercentage == 100, "SplitPlugin: Invalid percentages.");
+        require(_splitAddresses.length == _percentages.length, "SplitPlugin: Invalid split configuration");
+
         SplitConfig storage config = splitConfigs[_configIndex];
-        config.maxSplitAmount = _maxSplitLimit;
+        config.splitAddresses = _splitAddresses;
+        config.percentages = _percentages;
     }
 
     /// @dev Deletes the split config and removes the index from the user's splitConfigIndexes
@@ -184,7 +194,7 @@ contract SplitPlugin is BasePlugin {
         manifest.executionFunctions[0] = this.createSplit.selector;
         manifest.executionFunctions[1] = this.pauseAutomation.selector;
         manifest.executionFunctions[2] = this.split.selector;
-        manifest.executionFunctions[3] = this.updateSplitLimit.selector;
+        manifest.executionFunctions[3] = this.updateSplitConfig.selector;
         manifest.executionFunctions[4] = this.deleteSplitConfig.selector;
 
 
@@ -215,7 +225,7 @@ contract SplitPlugin is BasePlugin {
             })
         });
         manifest.userOpValidationFunctions[3] = ManifestAssociatedFunction({
-            executionSelector: this.updateSplitLimit.selector,
+            executionSelector: this.updateSplitConfig.selector,
             associatedFunction: ManifestFunction({
                 functionType: ManifestAssociatedFunctionType.DEPENDENCY,
                 functionId: 0, 

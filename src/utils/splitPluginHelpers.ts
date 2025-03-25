@@ -1,4 +1,3 @@
-// const SAVINGS_PLUGIN_ADDRESS = "0x4927729791055c0671950E8Ad736e1F0e531eF58"; // Sepolia
 import { SPLIT_PLUGIN_ADDRESS } from "../plugin-defs/split-module/config";
 
 async function installSplitPlugin(extendedAccount: any) {
@@ -79,9 +78,7 @@ async function split(extendedAccount: any, configIndex: number): Promise<any> {
   return res;
 }
 
-async function isSplitPluginInstalled(
-  extendedAccount: any
-): Promise<boolean> {
+async function isSplitPluginInstalled(extendedAccount: any): Promise<boolean> {
   const installedPlugins = await extendedAccount.getInstalledPlugins({});
   if (!installedPlugins.includes(SPLIT_PLUGIN_ADDRESS)) {
     return false;
