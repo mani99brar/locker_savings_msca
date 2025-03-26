@@ -198,7 +198,7 @@ export type SplitPluginActions<
   ReadAndEncodeActions;
 
 const addresses = {
-  84532: "0x821fA29F49e46c022e96DC840058Fc4c94F8d8aF" as Address,
+  84532: "0x4d1B257678247A2Bc84A4B8A8a77e16D26484CFe" as Address,
 } as Record<number, Address>;
 
 export const SplitPlugin: Plugin<typeof SplitPluginAbi> = {
